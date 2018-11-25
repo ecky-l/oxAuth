@@ -6,17 +6,18 @@
 
 package org.xdi.oxauth.ws.rs;
 
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.testng.ITestContext;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import org.xdi.oxauth.BaseTest;
 import org.xdi.oxauth.model.util.Base64Util;
-import sun.security.x509.X509CertImpl;
 
+import java.io.ByteArrayInputStream;
 import java.math.BigInteger;
 import java.security.PublicKey;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
+import java.security.cert.CertificateFactory;
 import java.security.interfaces.RSAPublicKey;
 
 import static org.testng.Assert.assertEquals;
@@ -25,11 +26,10 @@ import static org.testng.Assert.assertEquals;
  * @author Javier Rojas Blum
  * @version February 25, 2017
  */
-public class WebKeysTest extends BaseTest {
+public class WebKeysTest /* extends BaseTest necessary? */ {
 
     @Test(dataProvider = "webKeysDataProvider")
     public void webKeyTest(final String n, final String e, final String x5c) throws CertificateException {
-        showTitle("webKeyTest");
 
         byte[] nBytes = Base64Util.base64urldecode(n);
         BigInteger modulus = new BigInteger(1, nBytes);
@@ -44,8 +44,9 @@ public class WebKeysTest extends BaseTest {
         System.out.println("e: " + exponent);
 
         byte[] certBytes = Base64Util.base64urldecode(x5c);
-        X509Certificate cert = new X509CertImpl(certBytes);
 
+        final CertificateFactory certFactory = CertificateFactory.getInstance("X.509", new BouncyCastleProvider());
+        Certificate cert = certFactory.generateCertificate(new ByteArrayInputStream(certBytes));
         PublicKey publicKey = cert.getPublicKey();
         RSAPublicKey rsaPublicKey = (RSAPublicKey) publicKey;
         assertEquals(rsaPublicKey.getModulus(), modulus);
