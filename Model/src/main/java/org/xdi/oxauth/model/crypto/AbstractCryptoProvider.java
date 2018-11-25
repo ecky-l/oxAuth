@@ -6,6 +6,7 @@
 package org.xdi.oxauth.model.crypto;
 
 import org.apache.log4j.Logger;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
@@ -20,16 +21,12 @@ import org.xdi.oxauth.model.jwk.JSONWebKey;
 import org.xdi.oxauth.model.jwk.JSONWebKeySet;
 import org.xdi.oxauth.model.jwk.Use;
 import org.xdi.oxauth.model.util.Base64Util;
-import sun.security.rsa.RSAPublicKeyImpl;
 
 import java.math.BigInteger;
 import java.security.AlgorithmParameters;
 import java.security.KeyFactory;
 import java.security.PublicKey;
-import java.security.spec.ECGenParameterSpec;
-import java.security.spec.ECParameterSpec;
-import java.security.spec.ECPoint;
-import java.security.spec.ECPublicKeySpec;
+import java.security.spec.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -176,17 +173,19 @@ public abstract class AbstractCryptoProvider {
             if (alias.equals(key.getString(KEY_ID))) {
                 AlgorithmFamily family = null;
                 if (key.has(ALGORITHM)) {
-                    Algorithm algorithm = Algorithm.fromString(key.optString(ALGORITHM));
-                    family = algorithm.getFamily();
+                    SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.fromString(key.optString(ALGORITHM));
+                    family = signatureAlgorithm.getFamily();
                 } else if (key.has(KEY_TYPE)) {
-                    family = AlgorithmFamily.fromString(key.getString(KEY_TYPE));
+                    family = SignatureAlgorithmFamily.fromString(key.getString(KEY_TYPE));
                 }
 
-                if (AlgorithmFamily.RSA.equals(family)) {
-                    publicKey = new RSAPublicKeyImpl(
-                            new BigInteger(1, Base64Util.base64urldecode(key.getString(MODULUS))),
-                            new BigInteger(1, Base64Util.base64urldecode(key.getString(EXPONENT))));
-                } else if (AlgorithmFamily.EC.equals(family)) {
+                if (SignatureAlgorithmFamily.RSA.equals(family)) {
+                    final BigInteger modulus = new BigInteger(1, Base64Util.base64urldecode(key.getString(MODULUS)));
+                    final BigInteger exponent = new BigInteger(1, Base64Util.base64urldecode(key.getString(EXPONENT)));
+                    final KeySpec keySpec = new RSAPublicKeySpec(modulus, exponent);
+                    final KeyFactory factory = KeyFactory.getInstance("RSA", new BouncyCastleProvider());
+                    publicKey = factory.generatePublic(keySpec);
+                } else if (SignatureAlgorithmFamily.EC.equals(family)) {
                     ECEllipticCurve curve = ECEllipticCurve.fromString(key.optString(CURVE));
                     AlgorithmParameters parameters = AlgorithmParameters.getInstance(AlgorithmFamily.EC.toString());
                     parameters.init(new ECGenParameterSpec(curve.getAlias()));
