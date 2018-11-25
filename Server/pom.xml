@@ -607,25 +607,25 @@
 		<dependency>
 			<groupId>org.jboss.arquillian.container</groupId>
 			<artifactId>arquillian-container-test-impl-base</artifactId>
-			<version>1.4.0.Final</version>
+			<version>1.4.1.Final</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.jboss.arquillian.container</groupId>
 			<artifactId>arquillian-container-spi</artifactId>
-			<version>1.4.0.Final</version>
+			<version>1.4.1.Final</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.jboss.arquillian.container</groupId>
 			<artifactId>arquillian-container-test-spi</artifactId>
-			<version>1.4.0.Final</version>
+			<version>1.4.1.Final</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.jboss.arquillian.testenricher</groupId>
 			<artifactId>arquillian-testenricher-cdi</artifactId>
-			<version>1.4.0.Final</version>
+			<version>1.4.1.Final</version>
 			<scope>test</scope>
 		</dependency>
 
@@ -736,6 +736,7 @@
                 <dependency>
                     <groupId>com.nimbusds</groupId>
                     <artifactId>nimbus-jose-jwt</artifactId>
+					<version>6.4</version>
                 </dependency>
                 <dependency>
                     <groupId>org.bitbucket.b_c</groupId>

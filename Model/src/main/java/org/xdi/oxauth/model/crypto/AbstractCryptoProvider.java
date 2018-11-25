@@ -176,16 +176,16 @@ public abstract class AbstractCryptoProvider {
                     SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.fromString(key.optString(ALGORITHM));
                     family = signatureAlgorithm.getFamily();
                 } else if (key.has(KEY_TYPE)) {
-                    family = SignatureAlgorithmFamily.fromString(key.getString(KEY_TYPE));
+                    family = AlgorithmFamily.fromString(key.getString(KEY_TYPE));
                 }
 
-                if (SignatureAlgorithmFamily.RSA.equals(family)) {
+                if (AlgorithmFamily.RSA.equals(family)) {
                     final BigInteger modulus = new BigInteger(1, Base64Util.base64urldecode(key.getString(MODULUS)));
                     final BigInteger exponent = new BigInteger(1, Base64Util.base64urldecode(key.getString(EXPONENT)));
                     final KeySpec keySpec = new RSAPublicKeySpec(modulus, exponent);
                     final KeyFactory factory = KeyFactory.getInstance("RSA", new BouncyCastleProvider());
                     publicKey = factory.generatePublic(keySpec);
-                } else if (SignatureAlgorithmFamily.EC.equals(family)) {
+                } else if (AlgorithmFamily.EC.equals(family)) {
                     ECEllipticCurve curve = ECEllipticCurve.fromString(key.optString(CURVE));
                     AlgorithmParameters parameters = AlgorithmParameters.getInstance(AlgorithmFamily.EC.toString());
                     parameters.init(new ECGenParameterSpec(curve.getAlias()));
